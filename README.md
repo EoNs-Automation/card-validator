@@ -1,3 +1,5 @@
+![EoNs Automation](https://raw.githubusercontent.com/EoNs-Automation/password-generator/main/eonsautomationlogo.jpg)
+
 # Card Validator
 
 A simple credit/debit card number validator that uses the Luhn Algorithm.
