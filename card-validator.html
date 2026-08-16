@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Validator | EoNs Automation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #bbb;
+        }
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #444;
+            border-radius: 10px;
+            font-size: 18px;
+            background-color: #1e1e1e;
+            color: #fff;
+            box-sizing: border-box;
+            letter-spacing: 1px;
+        }
+        button {
+            width: 100%;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            background-color: #1565c0;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0d47a1;
+        }
+        #resultBox {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            border: 1px solid #333;
+            text-align: center;
+            min-height: 90px;
+        }
+        #output {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .valid {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .invalid {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .info {
+            color: #888;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Card Validator</h1>
+    <p class="subtitle">Luhn Algorithm • EoNs Automation</p>
+
+    <label for="cardNumber">Card Number</label>
+    <input type="text" id="cardNumber" placeholder="e.g. 4111 1111 1111 1111" maxlength="23">
+
+    <button onclick="checkCard()">Validate Card</button>
+
+    <div id="resultBox">
+        <div id="output">Result will appear here</div>
+        <div class="info">This only checks the number format using the Luhn Algorithm.<br>It does not check if the card is real or has funds.</div>
+    </div>
+
+    <script>
+        function getCardType(cardNumber) {
+            if (cardNumber.startsWith("4")) {
+                return { type: "Visa", min: 13, max: 19 };
+            } else if (/^5[1-5]/.test(cardNumber) || (cardNumber.length >= 4 && parseInt(cardNumber.substring(0, 4)) >= 2221 && parseInt(cardNumber.substring(0, 4)) <= 2720)) {
+                return { type: "Mastercard", min: 16, max: 16 };
+            } else if (/^3[47]/.test(cardNumber)) {
+                return { type: "American Express", min: 15, max: 15 };
+            } else if (/^6011/.test(cardNumber) || cardNumber.startsWith("65")) {
+                return { type: "Discover", min: 16, max: 19 };
+            } else if (/^3(0[0-5]|[68])/.test(cardNumber)) {
+                return { type: "Diners Club", min: 14, max: 14 };
+            } else if (cardNumber.startsWith("35")) {
+                return { type: "JCB", min: 16, max: 19 };
+            } else {
+                return { type: "Unknown", min: 13, max: 19 };
+            }
+        }
+
+        function verifyCardNumber(cardNumber) {
+            cardNumber = cardNumber.replace(/[\s-]/g, "");
+
+            if (!/^\d+$/.test(cardNumber)) {
+                return false;
+            }
+
+            let sumOfOddDigits = 0;
+            let sumOfEvenDigits = 0;
+            const reversed = cardNumber.split("").reverse().join("");
+
+            for (let i = 0; i < reversed.length; i++) {
+                let digit = parseInt(reversed[i]);
+
+                if (i % 2 === 0) {
+                    sumOfOddDigits += digit;
+                } else {
+                    let doubled = digit * 2;
+                    if (doubled >= 10) {
+                        doubled = Math.floor(doubled / 10) + (doubled % 10);
+                    }
+                    sumOfEvenDigits += doubled;
+                }
+            }
+
+            return (sumOfOddDigits + sumOfEvenDigits) % 10 === 0;
+        }
+
+        function checkCard() {
+            const input = document.getElementById("cardNumber").value.trim();
+            const output = document.getElementById("output");
+
+            if (input === "") {
+                output.innerHTML = "Please enter a card number.";
+                return;
+            }
+
+            const cleaned = input.replace(/[\s-]/g, "");
+
+            if (!/^\d+$/.test(cleaned)) {
+                output.innerHTML = "Invalid input. Numbers only.";
+                return;
+            }
+
+            const isValid = verifyCardNumber(cleaned);
+            const cardInfo = getCardType(cleaned);
+            const length = cleaned.length;
+
+            let resultHTML = `
+                <div>Card Type: <strong>${cardInfo.type}</strong></div>
+                <div>Length: ${length} (Expected: ${cardInfo.min}-${cardInfo.max})</div>
+                <div class="${isValid ? "valid" : "invalid"}">
+                    Status: ${isValid ? "VALID" : "INVALID"}
+                </div>
+            `;
+
+            output.innerHTML = resultHTML;
+        }
+    </script>
+
+</body>
+</html>
