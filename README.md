@@ -15,6 +15,9 @@ A simple credit/debit card number validator that uses the Luhn Algorithm.
 
 [Try the web version here](https://card-validator-1ae86d.netlify.app/)
 
+Also in the EoNs Tools Hub:
+https://tool-hub-f5b755.netlify.app/
+
 ## How to Use (Python)
 
 1. Run the script
